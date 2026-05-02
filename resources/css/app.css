@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 11% 15%; /* #212529 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 11% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    /* Navy primary #004085 */
+    --primary: 213 100% 26%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 100% 22%;
+    --primary-soft: 213 100% 96%;
+
+    --secondary: 210 17% 98%;
+    --secondary-foreground: 210 11% 15%;
+
+    --muted: 210 17% 96%;
+    --muted-foreground: 210 9% 45%;
+
+    --accent: 213 100% 96%;
+    --accent-foreground: 213 100% 26%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 16% 91%;
+    --input: 210 16% 91%;
+    --ring: 213 100% 26%;
+
+    --radius: 0.5rem;
+
+    /* Semantic data viz */
+    --code-bg: 213 30% 12%;
+    --code-fg: 213 30% 92%;
+    --code-key: 199 89% 70%;
+    --code-string: 142 65% 70%;
+    --code-tag: 35 95% 70%;
+
+    --sidebar-background: 210 20% 98%;
+    --sidebar-foreground: 210 11% 25%;
+    --sidebar-primary: 213 100% 26%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 213 100% 95%;
+    --sidebar-accent-foreground: 213 100% 26%;
+    --sidebar-border: 210 16% 91%;
+    --sidebar-ring: 213 100% 26%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
+  }
+  .font-serif { font-family: 'Source Serif 4', Georgia, serif; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+}
+
+@layer components {
+  .meta-tag {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary-soft px-2 py-0.5 font-mono text-[11px] font-medium text-primary;
+  }
+  .meta-tag-key { @apply text-primary/70; }
+}
