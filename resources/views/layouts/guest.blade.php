@@ -16,7 +16,7 @@
             body { font-family: 'Plus Jakarta Sans', sans-serif; }
         </style>
     </head>
-    <body class="font-sans text-foreground antialiased bg-[#f8fafc]">
+    <body class="font-sans text-foreground antialiased bg-background">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative overflow-hidden">
             <!-- Background Decorative Elements -->
             <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">

@@ -15,6 +15,7 @@ Route::get('/news-detail/{news}', [SearchController::class, 'show'])->name('publ
 Route::get('/news-export/{news}', [SearchController::class, 'exportRdf'])->name('public.news.export');
 Route::get('/ontology', [SearchController::class, 'ontology'])->name('public.ontology');
 Route::get('/semantic-index', [SearchController::class, 'semanticIndex'])->name('public.semantic.index');
+Route::get('/about', [SearchController::class, 'about'])->name('public.about');
 
 Route::get('/dashboard', function (App\Services\SemanticService $semanticService) {
     // Ambil jumlah triple asli dari triplestore
@@ -26,7 +27,10 @@ Route::get('/dashboard', function (App\Services\SemanticService $semanticService
         'total_triples' => $totalTriples,
         'categories' => \App\Models\Category::count(),
     ];
-    return view('dashboard', compact('stats'));
+
+    $recentActivities = \App\Models\News::latest()->take(5)->get();
+
+    return view('dashboard', compact('stats', 'recentActivities'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -40,6 +44,8 @@ Route::middleware('auth')->group(function () {
 
     // News Management (Admin Only)
     Route::resource('news', NewsController::class)->except(['show']);
+    Route::post('/news/reindex', [NewsController::class, 'reindex'])->name('news.reindex');
+    Route::post('/news/reset-triplestore', [NewsController::class, 'resetTriplestore'])->name('news.reset_triplestore');
     Route::get('/sparql-test', [NewsController::class, 'sparql'])->name('news.sparql');
 });
 

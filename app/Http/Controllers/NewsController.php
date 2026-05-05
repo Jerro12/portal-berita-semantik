@@ -101,6 +101,24 @@ class NewsController extends Controller
         return redirect()->route('news.index')->with('success', 'Berita berhasil dihapus.');
     }
 
+    public function reindex()
+    {
+        $newsItems = News::all();
+        $count = 0;
+        foreach ($newsItems as $item) {
+            $this->semanticService->indexNews($item);
+            $count++;
+        }
+
+        return redirect()->route('news.index')->with('success', "Berhasil sinkronisasi ulang $count berita ke triplestore.");
+    }
+
+    public function resetTriplestore()
+    {
+        $this->semanticService->resetStore();
+        return redirect()->route('news.index')->with('success', 'Seluruh data triplestore telah dihapus dan direset.');
+    }
+
     /**
      * Endpoint untuk testing SPARQL (Opsional)
      */

@@ -3,13 +3,29 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-3xl font-serif font-bold text-foreground mb-2">Articles Workspace</h1>
-                <p class="text-muted-foreground font-medium">Manage and monitor semantic news articles indexed in the triplestore.</p>
+                <h1 class="text-3xl font-serif font-bold text-foreground mb-2">Ruang Kerja Artikel</h1>
+                <p class="text-muted-foreground font-medium">Kelola dan pantau artikel berita semantik yang terindeks di triplestore.</p>
             </div>
-            <a href="{{ route('news.create') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                ADD NEW ARTICLE
-            </a>
+            <div class="flex flex-wrap gap-4">
+                <form action="{{ route('news.reset_triplestore') }}" method="POST" onsubmit="return confirm('PERINGATAN: Ini akan menghapus SELURUH data semantik di triplestore. Lanjutkan?')">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-bold text-sm border border-red-200 hover:bg-red-100 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        RESET TRIPLESTORE
+                    </button>
+                </form>
+                <form action="{{ route('news.reindex') }}" method="POST" onsubmit="return confirm('Sinkronisasi ulang seluruh berita ke triplestore?')">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-bold text-sm border border-primary/20 hover:bg-primary-soft transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        SINKRON ULANG SEMANTIK
+                    </button>
+                </form>
+                <a href="{{ route('news.create') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    TAMBAH ARTIKEL BARU
+                </a>
+            </div>
         </div>
 
         @if(session('success'))
@@ -24,11 +40,11 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-secondary/30">
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Content & Metadata</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Semantic Category</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Source</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Triplestore Status</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Actions</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Konten & Metadata</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Kategori Semantik</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Sumber</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status Triplestore</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -60,7 +76,7 @@
                             <td class="px-6 py-6">
                                 <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
                                     <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                                    SYNCED & INDEXED
+                                    TERSINKRON & TERINDEKS
                                 </span>
                             </td>
                             <td class="px-6 py-6">
@@ -83,7 +99,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-muted-foreground font-medium italic font-serif">
-                                No news articles found in the triplestore.
+                                Tidak ada artikel berita ditemukan di triplestore.
                             </td>
                         </tr>
                     @endforelse

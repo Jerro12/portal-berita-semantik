@@ -128,4 +128,8 @@ class SearchController extends Controller
 
         return view('public.semantic-index', compact('totalTriples', 'predicates'));
     }
+    public function about()
+    {
+        return view('public.about');
+    }
 }

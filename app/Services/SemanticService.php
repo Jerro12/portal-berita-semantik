@@ -45,8 +45,12 @@ class SemanticService
      */
     public function indexNews(News $news)
     {
-        $graph = new Graph();
         $uri = url('/ns/news/' . $news->id);
+
+        // 1. Hapus data lama terkait URI ini agar tidak terjadi duplikasi (Cloning)
+        $this->query("DELETE WHERE { <$uri> ?p ?o . }");
+
+        $graph = new Graph();
         $resource = $graph->resource($uri);
 
         $resource->add('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $graph->resource('https://schema.org/NewsArticle'));
@@ -97,8 +101,14 @@ class SemanticService
     }
 
     /**
-     * Reset Triplestore (Opsional untuk testing)
+     * Reset Triplestore (Hapus semua tabel ARC2 dan buat ulang)
      */
+    public function resetStore()
+    {
+        $this->store->drop();
+        $this->store->setUp();
+    }
+
     public function getStore()
     {
         return $this->store;

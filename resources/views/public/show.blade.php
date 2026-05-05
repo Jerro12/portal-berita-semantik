@@ -17,22 +17,27 @@
         <nav class="border-b border-border bg-background/80 backdrop-blur-md py-4 sticky top-0 z-50">
             <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
                 <a href="/" class="flex items-center gap-2 group">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-serif font-bold text-lg shadow-lg shadow-primary/20">S</div>
-                    <span class="text-lg font-bold tracking-tight text-foreground">News<span class="text-primary">Hub</span></span>
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
+                        <img src="/portal_berita_logo_icon_1777981056681.png" class="w-full h-full object-cover" alt="Logo">
+                    </div>
+                    <span class="text-lg font-bold tracking-tight text-foreground">Portal<span class="text-primary">Berita</span></span>
                 </a>
                 <div class="flex items-center gap-6">
-                    <a href="{{ route('public.ontology') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Ontology</a>
-                    <a href="{{ route('public.semantic.index') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Semantic Index</a>
+                    <a href="{{ route('public.ontology') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Ontologi</a>
+                    <a href="{{ route('public.semantic.index') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Indeks Semantik</a>
+                    <a href="{{ route('public.about') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Tentang</a>
                     <div class="flex items-center gap-4 border-l border-border pl-6">
                         @auth
                             <a href="{{ route('news.index') }}" class="text-xs font-bold text-primary hover:underline uppercase tracking-widest flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                                 Admin
                             </a>
+                        @else
+                            <a href="{{ route('login') }}" class="text-xs font-bold text-muted-foreground hover:text-primary transition-colors">Login Admin</a>
                         @endauth
                         <a href="{{ url()->previous() == url()->current() ? route('home') : url()->previous() }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                            Back
+                            Kembali
                         </a>
                     </div>
                 </div>
@@ -84,7 +89,7 @@
                                 <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
-                                <h3 class="font-serif font-bold text-xl">Triple Inspector</h3>
+                                <h3 class="font-serif font-bold text-xl">Inspektur Triple</h3>
                             </div>
                             
                             <p class="text-xs text-muted-foreground mb-6 leading-relaxed">
@@ -102,18 +107,18 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-xs text-muted-foreground italic">No triples found.</p>
+                                    <p class="text-xs text-muted-foreground italic">Tidak ada triple ditemukan.</p>
                                 @endforelse
                             </div>
 
                             <div class="mt-8 pt-6 border-t border-border space-y-4">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Relations</span>
+                                    <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Relasi</span>
                                     <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] font-bold">{{ count($triples) }}</span>
                                 </div>
                                 <a href="{{ route('public.news.export', $news->id) }}" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-foreground text-background rounded-xl font-bold text-xs hover:bg-foreground/90 transition-all shadow-lg shadow-foreground/10">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    DOWNLOAD RDF (.TTL)
+                                    UNDUH RDF (.TTL)
                                 </a>
                             </div>
                         </div>
@@ -133,16 +138,16 @@
                     <p class="text-xs text-muted-foreground leading-relaxed">Penerapan Teknologi Web Semantik untuk kurasi berita cerdas berbasis Ontologi Schema.org.</p>
                 </div>
                 <div class="space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Semantic Links</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Tautan Semantik</h4>
                     <ul class="space-y-2 text-xs text-muted-foreground font-medium">
-                        <li><a href="{{ route('public.ontology') }}" class="hover:text-primary transition-colors">Ontology Spec</a></li>
-                        <li><a href="{{ route('public.semantic.index') }}" class="hover:text-primary transition-colors">Semantic Index</a></li>
-                        <li><a href="https://schema.org" target="_blank" class="hover:text-primary transition-colors">Schema.org Vocabulary</a></li>
+                        <li><a href="{{ route('public.ontology') }}" class="hover:text-primary transition-colors">Spek Ontologi</a></li>
+                        <li><a href="{{ route('public.semantic.index') }}" class="hover:text-primary transition-colors">Indeks Semantik</a></li>
+                        <li><a href="https://schema.org" target="_blank" class="hover:text-primary transition-colors">Kosakata Schema.org</a></li>
                     </ul>
                 </div>
                 <div class="space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Project Info</h4>
-                    <p class="text-xs text-muted-foreground font-medium">&copy; {{ date('Y') }} Portal Berita Semantik - Thesis Project. Developed with Laravel & ARC2.</p>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Info Proyek</h4>
+                    <p class="text-xs text-muted-foreground font-medium">&copy; {{ date('Y') }} Portal Berita Semantik - Proyek Skripsi. Dikembangkan dengan Laravel & ARC2.</p>
                 </div>
             </div>
         </footer>

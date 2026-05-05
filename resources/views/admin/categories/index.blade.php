@@ -3,12 +3,12 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-3xl font-serif font-bold text-foreground mb-2">Category Workspace</h1>
-                <p class="text-muted-foreground font-medium">Manage and organize news taxonomies for better semantic mapping.</p>
+                <h1 class="text-3xl font-serif font-bold text-foreground mb-2">Ruang Kerja Kategori</h1>
+                <p class="text-muted-foreground font-medium">Kelola dan atur taksonomi berita untuk pemetaan semantik yang lebih baik.</p>
             </div>
             <a href="{{ route('categories.create') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                ADD NEW CATEGORY
+                TAMBAH KATEGORI BARU
             </a>
         </div>
 
@@ -24,10 +24,10 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-secondary/30">
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Category Info</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Info Kategori</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Slug</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Triples Link</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Actions</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tautan Triple</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -40,7 +40,7 @@
                                     </div>
                                     <div>
                                         <div class="text-lg font-serif font-bold text-foreground mb-1">{{ $category->name }}</div>
-                                        <div class="text-xs text-muted-foreground line-clamp-1 max-w-xs">{{ $category->description ?? 'No description provided.' }}</div>
+                                        <div class="text-xs text-muted-foreground line-clamp-1 max-w-xs">{{ $category->description ?? 'Tidak ada deskripsi disediakan.' }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -71,7 +71,7 @@
                     @empty
                         <tr>
                             <td colspan="4" class="px-6 py-12 text-center text-muted-foreground font-medium">
-                                No categories found. Start by creating one.
+                                Tidak ada kategori ditemukan. Mulai dengan membuatnya.
                             </td>
                         </tr>
                     @endforelse
