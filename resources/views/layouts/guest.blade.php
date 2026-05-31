@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Admin Auth - NewsHub Semantic</title>
+        <title>Login Admin - Portal Berita Semantik</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,10 +24,10 @@
                 <div class="absolute top-[60%] -right-[10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[150px]"></div>
             </div>
 
-            <div class="mb-8 transition-transform hover:scale-110 duration-500">
-                <a href="/" class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-serif font-bold text-2xl shadow-xl shadow-primary/20">S</div>
-                    <span class="text-2xl font-bold tracking-tight text-foreground">News<span class="text-primary">Hub</span></span>
+            <div class="mb-6">
+                <a href="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-accent uppercase tracking-widest transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Kembali ke Portal
                 </a>
             </div>
 

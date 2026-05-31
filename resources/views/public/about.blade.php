@@ -3,123 +3,120 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Tentang Aplikasi - NewsHub Semantic</title>
+        <title>Tentang Aplikasi - Portal Berita Semantik</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     </head>
-    <body class="antialiased bg-background text-foreground font-sans">
+    <body class="antialiased bg-white text-slate-900 selection:bg-accent selection:text-white">
         
-        <!-- Navbar -->
-        <nav class="border-b border-border bg-background/80 backdrop-blur-md py-4 sticky top-0 z-50">
-            <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
-                <a href="/" class="flex items-center gap-2 group">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
-                        <img src="/portal_berita_logo_icon_1777981056681.png" class="w-full h-full object-cover" alt="Logo">
+        <!-- Header / Logo Area -->
+        <header class="border-b border-slate-100 bg-white">
+            <div class="max-w-6xl mx-auto px-4 py-5 flex justify-between items-center">
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow shadow-slate-200 overflow-hidden relative border border-slate-200">
+                        <span class="text-white font-serif font-black text-lg">PS</span>
+                        <div class="absolute bottom-0 inset-x-0 h-0.5 bg-accent"></div>
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-foreground">Portal<span class="text-primary">Berita</span></span>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-serif font-black tracking-tight leading-none text-primary">
+                            PORTAL BERITA <span class="text-accent">SEMANTIK</span>
+                        </h2>
+                    </div>
                 </a>
-                <div class="flex items-center gap-6">
-                    <a href="{{ route('home') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Beranda</a>
-                    <a href="{{ route('public.ontology') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Ontologi</a>
-                    <a href="{{ route('public.semantic.index') }}" class="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">Indeks Semantik</a>
-                    <a href="{{ route('public.about') }}" class="text-xs font-bold text-primary uppercase tracking-widest transition-colors">Tentang</a>
-                    <div class="h-4 w-[1px] bg-border mx-2"></div>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-secondary text-primary rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-primary-soft transition-colors">Dasbor</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">Login Admin</a>
-                    @endauth
+
+                <div class="flex items-center gap-4">
+                    <a href="/" class="text-xs font-bold text-slate-600 hover:text-accent transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Beranda
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navbar Navigation -->
+        <nav class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-sm">
+            <div class="max-w-6xl mx-auto px-4 flex justify-between items-center py-3">
+                <div class="flex items-center gap-4 text-xs font-semibold text-slate-500">
+                    <a href="/" class="hover:text-accent">Beranda</a>
+                    <span>/</span>
+                    <span class="text-slate-900 font-bold uppercase tracking-wider">Tentang Aplikasi</span>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('home') }}" class="text-xs font-bold text-slate-600 hover:text-accent flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Kembali
+                    </a>
                 </div>
             </div>
         </nav>
 
-        <main class="max-w-4xl mx-auto px-4 py-20">
-            <div class="space-y-20">
+        <main class="max-w-4xl mx-auto px-4 py-16">
+            <div class="space-y-16">
                 <!-- Hero About -->
                 <section class="text-center space-y-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest mx-auto">
-                        Dokumentasi Sistem
+                    <div class="inline-flex px-3 py-1 bg-accent/5 border border-accent/20 rounded-full text-xs font-black uppercase text-accent tracking-widest mx-auto">
+                        Dokumentasi Riset Skripsi
                     </div>
-                    <h1 class="text-5xl font-serif font-bold text-foreground leading-tight">Membangun Jembatan Antara <br/> <span class="text-primary italic">Berita & Pengetahuan</span></h1>
-                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                        NewsHub Semantic Portal adalah implementasi teknologi Web Semantik untuk ekstraksi, representasi, dan visualisasi pengetahuan dari artikel berita digital.
+                    <h1 class="text-3xl md:text-5xl font-serif font-black text-slate-900 leading-tight">
+                        Membangun Jembatan Antara <br/> 
+                        <span class="text-accent italic">Berita & Pengetahuan Semantik</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+                        Portal Berita Semantik adalah wujud implementasi mutakhir teknologi Web Semantik untuk ekstraksi, pemetaan, dan visualisasi data terhubung dari artikel berita digital.
                     </p>
                 </section>
 
                 <!-- Core Pillars -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="p-10 bg-secondary/20 rounded-[2.5rem] border border-border group hover:bg-primary transition-all duration-500">
-                        <div class="w-14 h-14 bg-background rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
-                            <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <!-- Column 1 -->
+                    <div class="p-8 bg-slate-50 border border-slate-200 rounded-2xl space-y-4 group hover:bg-primary transition-all duration-300">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
-                        <h3 class="text-2xl font-serif font-bold mb-4 group-hover:text-white transition-colors">Ekstraksi RDF</h3>
-                        <p class="text-muted-foreground leading-relaxed group-hover:text-white/70 transition-colors">
-                            Setiap berita dikonversi menjadi triple (Subjek, Predikat, Objek) menggunakan standar RDF untuk menciptakan jaringan data yang terhubung.
+                        <h3 class="text-xl font-serif font-bold text-slate-900 group-hover:text-white transition-colors">Ekstraksi RDF</h3>
+                        <p class="text-xs text-slate-500 group-hover:text-slate-300 leading-relaxed font-medium transition-colors">
+                            Setiap berita dikonversi secara real-time menjadi pasangan Triple RDF (Subjek, Predikat, Objek) untuk memetakan hubungan logis data.
                         </p>
                     </div>
 
-                    <div class="p-10 bg-secondary/20 rounded-[2.5rem] border border-border group hover:bg-primary transition-all duration-500">
-                        <div class="w-14 h-14 bg-background rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
-                            <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <!-- Column 2 -->
+                    <div class="p-8 bg-slate-50 border border-slate-200 rounded-2xl space-y-4 group hover:bg-primary transition-all duration-300">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
-                        <h3 class="text-2xl font-serif font-bold mb-4 group-hover:text-white transition-colors">Ontologi Terstruktur</h3>
-                        <p class="text-muted-foreground leading-relaxed group-hover:text-white/70 transition-colors">
-                            Mengadopsi kosakata <strong>Schema.org</strong> untuk memastikan data yang dihasilkan dapat dipahami oleh mesin pencari seperti Google secara universal.
+                        <h3 class="text-xl font-serif font-bold text-slate-900 group-hover:text-white transition-colors">Ontologi Terstruktur</h3>
+                        <p class="text-xs text-slate-500 group-hover:text-slate-300 leading-relaxed font-medium transition-colors">
+                            Mengadopsi skema global dari <strong>Schema.org</strong> sehingga struktur data dipahami secara universal oleh mesin pencarian modern.
                         </p>
                     </div>
                 </div>
 
                 <!-- Technical Details -->
-                <section class="bg-[#172A39] text-white rounded-[3rem] p-12 overflow-hidden relative">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+                <section class="bg-primary text-white rounded-2xl p-8 md:p-12 relative overflow-hidden shadow-xl shadow-slate-950/10">
+                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/3 translate-x-1/3 pointer-events-none"></div>
+                    
                     <div class="relative z-10 space-y-8">
-                        <div class="space-y-4">
-                            <h2 class="text-3xl font-serif font-bold">Teknologi yang Digunakan</h2>
-                            <p class="text-white/60">Arsitektur modern yang menggabungkan Framework Relasional dengan Mesin Semantik.</p>
+                        <div class="space-y-2">
+                            <h2 class="text-2xl md:text-3xl font-serif font-black text-white">Arsitektur & Teknologi Sistem</h2>
+                            <p class="text-xs text-slate-300 font-bold uppercase tracking-widest">Kombinasi Database Relasional & Database Semantik</p>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div class="space-y-2">
-                                <div class="text-xs font-bold text-accent uppercase tracking-widest">Backend</div>
-                                <div class="text-lg font-bold">Laravel 11</div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-xs">
+                            <div class="space-y-1">
+                                <div class="font-bold text-accent uppercase tracking-widest text-[9px]">Framework Backend</div>
+                                <div class="text-sm font-bold text-white">Laravel 11 (PHP 8.2)</div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="text-xs font-bold text-accent uppercase tracking-widest">Triplestore</div>
-                                <div class="text-lg font-bold">ARC2 RDF Store</div>
+                            <div class="space-y-1">
+                                <div class="font-bold text-accent uppercase tracking-widest text-[9px]">Triplestore Database</div>
+                                <div class="text-sm font-bold text-white">ARC2 RDF Database Store</div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="text-xs font-bold text-accent uppercase tracking-widest">UI Framework</div>
-                                <div class="text-lg font-bold">Tailwind CSS</div>
+                            <div class="space-y-1">
+                                <div class="font-bold text-accent uppercase tracking-widest text-[9px]">RDF Converter</div>
+                                <div class="text-sm font-bold text-white">EasyRDF Library PHP</div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="text-xs font-bold text-accent uppercase tracking-widest">Data Format</div>
-                                <div class="text-lg font-bold">JSON-LD & Turtle</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Why Semantic? -->
-                <section class="space-y-8">
-                    <h2 class="text-3xl font-serif font-bold text-center">Mengapa Harus Semantik?</h2>
-                    <div class="space-y-6">
-                        <div class="flex gap-6 p-6 rounded-2xl hover:bg-secondary/10 transition-colors">
-                            <div class="text-2xl font-serif font-bold text-primary">01.</div>
-                            <div class="space-y-2">
-                                <h4 class="text-xl font-bold">Interoperabilitas Data</h4>
-                                <p class="text-muted-foreground leading-relaxed text-sm">Data tidak lagi terkunci dalam database terisolasi, melainkan menjadi bagian dari Linked Open Data yang bisa diintegrasikan dengan aplikasi lain.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-6 p-6 rounded-2xl hover:bg-secondary/10 transition-colors">
-                            <div class="text-2xl font-serif font-bold text-primary">02.</div>
-                            <div class="space-y-2">
-                                <h4 class="text-xl font-bold">Pencarian Cerdas</h4>
-                                <p class="text-muted-foreground leading-relaxed text-sm">Mesin pencari dapat memahami relasi antar aktor, lokasi, dan peristiwa dalam berita melalui query SPARQL yang presisi.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-6 p-6 rounded-2xl hover:bg-secondary/10 transition-colors">
-                            <div class="text-2xl font-serif font-bold text-primary">03.</div>
-                            <div class="space-y-2">
-                                <h4 class="text-xl font-bold">Optimasi SEO</h4>
-                                <p class="text-muted-foreground leading-relaxed text-sm">Dengan JSON-LD, artikel berita akan mendapatkan Rich Snippets pada hasil pencarian, meningkatkan visibilitas dan klik secara organik.</p>
+                            <div class="space-y-1">
+                                <div class="font-bold text-accent uppercase tracking-widest text-[9px]">Sistem Styling</div>
+                                <div class="text-sm font-bold text-white">Tailwind CSS (Vite Bundler)</div>
                             </div>
                         </div>
                     </div>
@@ -127,26 +124,27 @@
             </div>
         </main>
 
-        <footer class="py-16 border-t border-border mt-24 bg-secondary/10">
-            <div class="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+        <!-- Footer -->
+        <footer class="bg-primary text-white py-16 border-t-4 border-accent mt-20">
+            <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
                 <div class="space-y-4">
                     <div class="flex items-center justify-center md:justify-start gap-2">
-                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-serif font-bold">S</div>
-                        <span class="text-lg font-bold tracking-tight text-foreground">NewsHub</span>
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-primary font-serif font-black text-base shadow border-b-2 border-accent">PS</div>
+                        <span class="text-base font-serif font-black tracking-tight">PORTAL BERITA <span class="text-accent">SEMANTIK</span></span>
                     </div>
-                    <p class="text-xs text-muted-foreground leading-relaxed">Penerapan Teknologi Web Semantik untuk kurasi berita cerdas berbasis Ontologi Schema.org.</p>
+                    <p class="text-xs text-white/60 leading-relaxed">Penerapan teknologi Web Semantik untuk ekstraksi dan kurasi berita cerdas berbasis Ontologi Schema.org.</p>
                 </div>
                 <div class="space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Tautan Semantik</h4>
-                    <ul class="space-y-2 text-xs text-muted-foreground font-medium">
-                        <li><a href="{{ route('public.ontology') }}" class="hover:text-primary transition-colors">Spek Ontologi</a></li>
-                        <li><a href="{{ route('public.semantic.index') }}" class="hover:text-primary transition-colors">Indeks Semantik</a></li>
-                        <li><a href="https://schema.org" target="_blank" class="hover:text-primary transition-colors">Kosakata Schema.org</a></li>
+                    <h4 class="text-xs font-black uppercase tracking-widest text-accent">Tautan Cepat</h4>
+                    <ul class="space-y-2 text-xs text-white/70 font-semibold">
+                        <li><a href="{{ route('public.ontology') }}" class="hover:text-accent transition-colors">Spesifikasi Ontologi</a></li>
+                        <li><a href="{{ route('public.semantic.index') }}" class="hover:text-accent transition-colors">Indeks Semantik</a></li>
+                        <li><a href="https://schema.org" target="_blank" class="hover:text-accent transition-colors">Kosakata Schema.org</a></li>
                     </ul>
                 </div>
                 <div class="space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-foreground">Info Proyek</h4>
-                    <p class="text-xs text-muted-foreground font-medium">&copy; {{ date('Y') }} Portal Berita Semantik - Proyek Skripsi. Dikembangkan dengan Laravel & ARC2.</p>
+                    <h4 class="text-xs font-black uppercase tracking-widest text-accent">Info Proyek</h4>
+                    <p class="text-xs text-white/60 leading-relaxed font-semibold">&copy; {{ date('Y') }} Portal Berita Semantik. Dikembangkan dengan Laravel & ARC2.</p>
                 </div>
             </div>
         </footer>
