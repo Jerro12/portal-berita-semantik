@@ -11,6 +11,7 @@ use App\Http\Controllers\CategoryController;
 // PUBLIC ROUTES (USER)
 // ==========================================
 Route::get('/', [SearchController::class, 'index'])->name('home');
+Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->name('search.autocomplete');
 Route::get('/news-detail/{news}', [SearchController::class, 'show'])->name('public.news.show');
 Route::get('/news-export/{news}', [SearchController::class, 'exportRdf'])->name('public.news.export');
 Route::get('/ontology', [SearchController::class, 'ontology'])->name('public.ontology');

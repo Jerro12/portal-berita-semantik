@@ -19,6 +19,122 @@
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
+
+            /* ===================== Smart Search Styles ===================== */
+
+            /* Keyword Highlight */
+            mark.search-highlight {
+                background: linear-gradient(120deg, #fde68a 0%, #fbbf24 100%);
+                color: #92400e;
+                border-radius: 3px;
+                padding: 0 2px;
+                font-weight: 700;
+            }
+
+            /* Autocomplete Dropdown */
+            #autocomplete-dropdown {
+                position: absolute;
+                top: calc(100% + 6px);
+                left: 0; right: 0;
+                z-index: 9999;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+                overflow: hidden;
+                animation: dropIn 0.15s ease;
+            }
+            @keyframes dropIn {
+                from { opacity: 0; transform: translateY(-6px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .autocomplete-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 14px;
+                font-size: 13px;
+                color: #334155;
+                cursor: pointer;
+                transition: background 0.12s;
+                border-bottom: 1px solid #f1f5f9;
+            }
+            .autocomplete-item:last-child { border-bottom: none; }
+            .autocomplete-item:hover, .autocomplete-item.active { background: #f8fafc; }
+            .autocomplete-item svg { flex-shrink: 0; color: #94a3b8; }
+
+            /* Smart Feedback Panel */
+            .smart-feedback-panel {
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                border: 1px solid #bae6fd;
+                border-radius: 12px;
+                padding: 12px 16px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+            }
+            .spo-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                background: #fff;
+                border: 1px solid #bae6fd;
+                border-radius: 20px;
+                padding: 3px 10px;
+                font-size: 11px;
+                font-weight: 600;
+                color: #0369a1;
+                font-family: monospace;
+            }
+            .spo-chip .spo-pred {
+                color: #9ca3af;
+                font-style: italic;
+            }
+            .spo-chip .spo-obj {
+                color: #1d4ed8;
+                font-weight: 700;
+            }
+
+            /* Data Source Badge */
+            .source-badge-sparql {
+                display: inline-flex; align-items: center; gap: 5px;
+                background: #dcfce7; color: #15803d;
+                border: 1px solid #86efac;
+                border-radius: 20px; padding: 3px 10px;
+                font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            }
+            .source-badge-mysql {
+                display: inline-flex; align-items: center; gap: 5px;
+                background: #fef9c3; color: #92400e;
+                border: 1px solid #fde68a;
+                border-radius: 20px; padding: 3px 10px;
+                font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            }
+
+            /* SPARQL Debug Panel */
+            .sparql-debug {
+                background: #1e293b;
+                border-radius: 10px;
+                padding: 14px 16px;
+                font-family: 'JetBrains Mono', 'Fira Code', monospace;
+                font-size: 11px;
+                color: #94a3b8;
+                white-space: pre-wrap;
+                line-height: 1.6;
+                border: 1px solid #334155;
+            }
+            .sparql-debug .kw-prefix { color: #c084fc; }
+            .sparql-debug .kw-select { color: #38bdf8; }
+            .sparql-debug .kw-where  { color: #38bdf8; }
+            .sparql-debug .kw-filter { color: #fb923c; }
+            .sparql-debug .kw-order  { color: #4ade80; }
+            details > summary {
+                cursor: pointer;
+                user-select: none;
+                list-style: none;
+            }
+            details > summary::-webkit-details-marker { display: none; }
         </style>
     </head>
     <body class="antialiased bg-white text-slate-900 selection:bg-accent selection:text-white">
@@ -56,15 +172,26 @@
                     </div>
                 </div>
 
-                <!-- Search Bar -->
-                <form action="/" method="GET" class="relative w-full max-w-sm">
-                    <input type="text" name="q" value="{{ $query ?? '' }}" placeholder="Cari topik atau relasi berita..." 
-                        class="w-full pl-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-slate-50 focus:bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 text-sm transition-all placeholder:text-slate-400">
-                    <button type="submit" class="absolute right-3 top-3 text-slate-400 hover:text-accent transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </button>
+                <!-- Smart Search Bar + Autocomplete -->
+                <form id="search-form" action="/" method="GET" class="relative w-full max-w-sm" autocomplete="off">
+                    <div class="relative">
+                        <input
+                            id="search-input"
+                            type="text"
+                            name="q"
+                            value="{{ $query ?? '' }}"
+                            placeholder="Cari topik, kategori, atau berita..."
+                            class="w-full pl-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-slate-50 focus:bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 text-sm transition-all placeholder:text-slate-400"
+                        >
+                        <button type="submit" class="absolute right-3 top-3 text-slate-400 hover:text-accent transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+
+                        <!-- Autocomplete Dropdown (diisi via JS) -->
+                        <div id="autocomplete-dropdown" class="hidden"></div>
+                    </div>
                     @if($categoryFilter)
                         <input type="hidden" name="category" value="{{ $categoryFilter }}">
                     @endif
@@ -242,38 +369,58 @@
                 <section class="lg:col-span-8 space-y-8">
                     
                     <!-- Feed Header -->
-                    <div class="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            @if($query)
-                                <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
-                                    Hasil Pencarian Semantik: <span class="text-accent italic">"{{ $query }}"</span>
-                                </h2>
-                                <p class="text-xs text-slate-500 font-medium mt-1">Ditemukan melalui query SPARQL ke database triplestore</p>
-                            @elseif($categoryFilter)
-                                <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
-                                    Kategori: <span class="text-accent italic">{{ $categoryFilter }}</span>
-                                </h2>
-                                <p class="text-xs text-slate-500 font-medium mt-1">Menampilkan seluruh subjek di bawah konsep ontologi ini</p>
-                            @else
-                                <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
-                                    INDEKS BERITA TERKINI
-                                </h2>
-                                <p class="text-xs text-slate-500 font-medium mt-1">Seluruh artikel yang dipetakan ke ontologi global Schema.org</p>
-                            @endif
-                        </div>
-                        
-                        <!-- Query Performance Statistics -->
-                        <div class="flex items-center gap-4 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg px-4 py-2">
+                    <div class="border-b-2 border-slate-900 pb-4 flex flex-col gap-4">
+
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
-                                <span class="text-slate-400 block text-[9px] uppercase font-sans font-bold">Waktu Respon</span>
-                                <span class="font-bold text-accent">0.038s</span>
+                                @if($query)
+                                    <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
+                                        Hasil Pencarian: <span class="text-accent italic">"{{ $query }}"</span>
+                                    </h2>
+                                    <p class="text-xs text-slate-500 font-medium mt-1">Ditemukan melalui Smart Search Engine (SPARQL + Fuzzy Matching)</p>
+                                @elseif($categoryFilter)
+                                    <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
+                                        Kategori: <span class="text-accent italic">{{ $categoryFilter }}</span>
+                                    </h2>
+                                    <p class="text-xs text-slate-500 font-medium mt-1">Menampilkan seluruh subjek di bawah konsep ontologi ini</p>
+                                @else
+                                    <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
+                                        INDEKS BERITA TERKINI
+                                    </h2>
+                                    <p class="text-xs text-slate-500 font-medium mt-1">Seluruh artikel yang dipetakan ke ontologi global Schema.org</p>
+                                @endif
                             </div>
-                            <div class="w-[1px] h-6 bg-slate-200"></div>
-                            <div>
-                                <span class="text-slate-400 block text-[9px] uppercase font-sans font-bold">Triple Diproses</span>
-                                <span class="font-bold text-primary">{{ count($results) * 9 }}</span>
+
+                            <!-- Badges: sumber data + jumlah hasil -->
+                            <div class="flex items-center gap-3">
+                                @if($queryInfo)
+                                    @if($queryInfo['source'] === 'mysql')
+                                        <span class="source-badge-mysql">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z"/></svg>
+                                            Fallback: MySQL
+                                        </span>
+                                    @else
+                                        <span class="source-badge-sparql">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                            SPARQL Engine
+                                        </span>
+                                    @endif
+                                @endif
+                                <div class="flex items-center gap-4 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg px-4 py-2">
+                                    <div>
+                                        <span class="text-slate-400 block text-[9px] uppercase font-sans font-bold">Ditemukan</span>
+                                        <span class="font-bold text-accent">{{ count($results) }}</span>
+                                    </div>
+                                    <div class="w-[1px] h-6 bg-slate-200"></div>
+                                    <div>
+                                        <span class="text-slate-400 block text-[9px] uppercase font-sans font-bold">Triple Diproses</span>
+                                        <span class="font-bold text-primary">{{ count($results) * 9 }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+
                     </div>
 
                     <!-- Horizontal News Feed List -->
@@ -319,12 +466,20 @@
 
                                     <a href="{{ route('public.news.show', $newsId) }}" class="block">
                                         <h3 class="text-xl font-serif font-bold text-slate-900 group-hover:text-accent transition-colors leading-snug line-clamp-2">
-                                            {{ $news['headline'] }}
+                                            @if($queryInfo && !empty($queryInfo['tokens']))
+                                                {!! \App\Services\SmartSearchService::highlight($news['headline'], $queryInfo['tokens']) !!}
+                                            @else
+                                                {{ $news['headline'] }}
+                                            @endif
                                         </h3>
                                     </a>
 
                                     <p class="text-sm text-slate-500 mt-2 font-medium line-clamp-2 leading-relaxed">
-                                        {{ $news['body'] }}
+                                        @if($queryInfo && !empty($queryInfo['tokens']))
+                                            {!! \App\Services\SmartSearchService::highlight(Str::limit($news['body'], 180), $queryInfo['tokens']) !!}
+                                        @else
+                                            {{ Str::limit($news['body'], 180) }}
+                                        @endif
                                     </p>
 
                                     <!-- Semantic Metadata Tag -->
@@ -481,32 +636,134 @@
             </div>
         </footer>
 
-        <!-- Realtime clock widget script -->
+        <!-- Realtime clock widget + Smart Search JS -->
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                
-                function updateClock() {
-                    const now = new Date();
-                    const dayName = days[now.getDay()];
-                    const date = now.getDate();
-                    const monthName = months[now.getMonth()];
-                    const year = now.getFullYear();
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    
-                    const timeString = `${dayName}, ${date} ${monthName} ${year} • ${hours}:${minutes}:${seconds} WIB`;
-                    const clockElement = document.getElementById('realtime-clock');
-                    if (clockElement) {
-                        clockElement.textContent = timeString;
-                    }
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ===================== Realtime Clock =====================
+            const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+            const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            function updateClock() {
+                const now  = new Date();
+                const str  = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} • ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')} WIB`;
+                const el   = document.getElementById('realtime-clock');
+                if (el) el.textContent = str;
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // ===================== Autocomplete =====================
+            const searchInput = document.getElementById('search-input');
+            const dropdown    = document.getElementById('autocomplete-dropdown');
+            const searchForm  = document.getElementById('search-form');
+
+            if (!searchInput || !dropdown) return;
+
+            let debounceTimer = null;
+            let activeIndex   = -1;
+            let currentItems  = [];
+
+            const AUTOCOMPLETE_URL = '{{ route('search.autocomplete') }}';
+
+            function showDropdown(items) {
+                currentItems = items;
+                activeIndex  = -1;
+
+                if (!items.length) {
+                    hideDropdown();
+                    return;
                 }
-                
-                updateClock();
-                setInterval(updateClock, 1000);
+
+                dropdown.innerHTML = items.map((item, i) =>
+                    `<div class="autocomplete-item" data-index="${i}" data-value="${escapeHtml(item)}">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <span>${escapeHtml(item)}</span>
+                    </div>`
+                ).join('');
+
+                dropdown.classList.remove('hidden');
+
+                // Klik item autocomplete
+                dropdown.querySelectorAll('.autocomplete-item').forEach(el => {
+                    el.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        selectItem(this.dataset.value);
+                    });
+                });
+            }
+
+            function hideDropdown() {
+                dropdown.classList.add('hidden');
+                dropdown.innerHTML = '';
+                currentItems = [];
+                activeIndex  = -1;
+            }
+
+            function selectItem(value) {
+                searchInput.value = value;
+                hideDropdown();
+                searchForm.submit();
+            }
+
+            function setActive(idx) {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+                items.forEach(el => el.classList.remove('active'));
+                if (idx >= 0 && idx < items.length) {
+                    items[idx].classList.add('active');
+                    searchInput.value = currentItems[idx];
+                }
+                activeIndex = idx;
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+
+            // Input handler dengan debounce 280ms
+            searchInput.addEventListener('input', function() {
+                const q = this.value.trim();
+                clearTimeout(debounceTimer);
+
+                if (q.length < 2) {
+                    hideDropdown();
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`${AUTOCOMPLETE_URL}?q=${encodeURIComponent(q)}`)
+                        .then(r => r.json())
+                        .then(data => showDropdown(data))
+                        .catch(() => hideDropdown());
+                }, 280);
             });
+
+            // Navigasi keyboard (↑ ↓ Enter Escape)
+            searchInput.addEventListener('keydown', function(e) {
+                const itemCount = currentItems.length;
+                if (!itemCount) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setActive(Math.min(activeIndex + 1, itemCount - 1));
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setActive(Math.max(activeIndex - 1, -1));
+                } else if (e.key === 'Enter' && activeIndex >= 0) {
+                    e.preventDefault();
+                    selectItem(currentItems[activeIndex]);
+                } else if (e.key === 'Escape') {
+                    hideDropdown();
+                }
+            });
+
+            // Tutup dropdown saat klik di luar
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    hideDropdown();
+                }
+            });
+
+        });
         </script>
     </body>
 </html>
