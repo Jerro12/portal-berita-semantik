@@ -19,7 +19,21 @@ class CategoryController extends Controller
         return view('admin.categories.create');
     }
 
-    // ... (store method)
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'description' => 'nullable|string',
+        ]);
+
+        Category::create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil ditambahkan.');
+    }
 
     public function edit(Category $category)
     {

@@ -18,7 +18,6 @@
 
                 <form action="{{ route('news.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                     @csrf
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Judul -->
                         <div class="col-span-2">
@@ -27,7 +26,6 @@
                                 class="block w-full border-border bg-secondary/30 rounded-xl focus:ring-primary focus:border-primary text-lg font-serif" required autofocus />
                             <x-input-error class="mt-2" :messages="$errors->get('title')" />
                         </div>
-
                         <!-- Kategori -->
                         <div>
                             <label for="category" class="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Kategori (articleSection)</label>

@@ -187,6 +187,40 @@ class SmartSearchService
 
         $cleanQ = trim(preg_replace('/\s+/', ' ', $cleanQ));
 
+        // -- 3d. Deteksi Penulis dengan Fuzzy Match (Typo Tolerance) --
+        if (!$detectedSource) {
+            // Ambil data penulis dari cache (disimpan selama 1 jam) untuk optimasi kecepatan
+            $allAuthors = \Illuminate\Support\Facades\Cache::remember('semantic_authors_list', 3600, function () {
+                return \App\Models\News::whereNotNull('source')->where('source', '!=', '')->distinct()->pluck('source')->toArray();
+            });
+
+            $queryWords = array_filter(
+                explode(' ', strtolower($cleanQ)),
+                fn($w) => strlen(trim($w)) > 3
+            );
+
+            foreach ($queryWords as $word) {
+                $word = trim($word);
+                if (in_array($word, $this->stopWords)) continue;
+
+                foreach ($allAuthors as $author) {
+                    $authorWords = explode(' ', strtolower($author));
+                    foreach ($authorWords as $aWord) {
+                        if (strlen($aWord) > 3) {
+                            // Deteksi kecocokan penuh ATAU typo (levenshtein <= 2)
+                            if ($word === $aWord || (levenshtein($word, $aWord) <= 2 && levenshtein($word, $aWord) > 0)) {
+                                $detectedSource = $author;
+                                $cleanQ = preg_replace('/\b' . preg_quote($word, '/') . '\b/i', '', $cleanQ);
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $cleanQ = trim(preg_replace('/\s+/', ' ', $cleanQ));
+
         // ====================================================
         // STEP 4: STOP WORD REMOVAL
         // ====================================================
@@ -256,13 +290,14 @@ class SmartSearchService
     ): string {
         $filters = [];
 
-        // Filter teks (judul ATAU isi) untuk setiap token — OR antar token
+        // Filter teks (judul ATAU isi ATAU penulis) untuk setiap token — OR antar token
         if (!empty($tokens)) {
             $regexParts = [];
             foreach ($tokens as $token) {
                 $safe = addslashes($token);
                 $regexParts[] = "REGEX(?headline, \"$safe\", \"i\")";
                 $regexParts[] = "REGEX(?body, \"$safe\", \"i\")";
+                $regexParts[] = "REGEX(?source, \"$safe\", \"i\")";
             }
             $filters[] = 'FILTER(' . implode(' || ', $regexParts) . ')';
         }
@@ -325,7 +360,8 @@ class SmartSearchService
                 foreach ($tokens as $token) {
                     $q->orWhere(function ($inner) use ($token) {
                         $inner->where('title', 'LIKE', "%$token%")
-                              ->orWhere('content', 'LIKE', "%$token%");
+                              ->orWhere('content', 'LIKE', "%$token%")
+                              ->orWhere('source', 'LIKE', "%$token%");
                     });
                 }
             });

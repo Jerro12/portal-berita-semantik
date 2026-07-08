@@ -26,7 +26,7 @@ class SearchController extends Controller
      */
     public function index(Request $request)
     {
-        $query          = $request->input('q', '');
+        $query          = (string) $request->input('q');
         $categoryFilter = $request->input('category');
         $categories     = \App\Models\Category::all();
 
