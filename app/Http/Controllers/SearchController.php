@@ -28,13 +28,18 @@ class SearchController extends Controller
     {
         $query          = (string) $request->input('q');
         $categoryFilter = $request->input('category');
+        $searchType     = $request->input('type', 'smart');
         $categories     = \App\Models\Category::all();
 
-        // Jalankan Smart Search hanya jika ada input query atau filter kategori
+        // Jalankan Smart Search atau Regular Search jika ada input query atau filter kategori
         if ($query || $categoryFilter) {
-            $searchData = $this->smartSearch->search($query, [
-                'category' => $categoryFilter,
-            ]);
+            if ($searchType === 'regular') {
+                $searchData = $this->regularSearch($query, $categoryFilter);
+            } else {
+                $searchData = $this->smartSearch->search($query, [
+                    'category' => $categoryFilter,
+                ]);
+            }
 
             $results     = $searchData['results'];
             $queryInfo   = $searchData;
@@ -72,7 +77,91 @@ class SearchController extends Controller
     }
 
     /**
+     * Pencarian biasa (Regex SPARQL + MySQL Fallback)
+     */
+    protected function regularSearch($query, $categoryFilter)
+    {
+        $filters = [];
+        if ($query) {
+            $safe = addslashes($query);
+            $filters[] = 'FILTER(REGEX(?headline, "'.$safe.'", "i") || REGEX(?body, "'.$safe.'", "i") || REGEX(?source, "'.$safe.'", "i"))';
+        }
+        if ($categoryFilter) {
+            $safeCat = addslashes($categoryFilter);
+            $filters[] = 'FILTER(REGEX(?category, "'.$safeCat.'", "i"))';
+        }
+
+        $filterStr = implode("\n                ", $filters);
+
+        $sparql = "
+            PREFIX schema: <https://schema.org/>
+            PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+            SELECT ?id ?headline ?body ?category ?date ?source ?image WHERE {
+                ?id rdf:type schema:NewsArticle ;
+                    schema:headline ?headline ;
+                    schema:articleBody ?body ;
+                    schema:articleSection ?category ;
+                    schema:datePublished ?date ;
+                    schema:author ?source .
+                OPTIONAL { ?id schema:image ?image }
+                $filterStr
+            }
+            ORDER BY DESC(?date)
+            LIMIT 20
+        ";
+
+        $sparqlResults = $this->semanticService->query($sparql);
+        $results = $sparqlResults['result']['rows'] ?? [];
+        $dataSource = 'sparql';
+
+        if (empty($results)) {
+            $newsQuery = \App\Models\News::query();
+            if ($query) {
+                $newsQuery->where(function($q) use ($query) {
+                    $q->where('title', 'LIKE', "%{$query}%")
+                      ->orWhere('content', 'LIKE', "%{$query}%")
+                      ->orWhere('source', 'LIKE', "%{$query}%");
+                });
+            }
+            if ($categoryFilter) {
+                $newsQuery->where('category', $categoryFilter);
+            }
+            $news = $newsQuery->orderBy('published_at', 'desc')->limit(20)->get();
+            $results = $news->map(function ($n) {
+                return [
+                    'id'       => url('/ns/news/' . $n->id),
+                    'headline' => $n->title,
+                    'body'     => $n->content,
+                    'category' => $n->category,
+                    'date'     => $n->published_at?->toIso8601String(),
+                    'source'   => $n->source ?? 'Admin',
+                    'image'    => $n->image ?? null,
+                ];
+            })->toArray();
+            $dataSource = 'mysql';
+        }
+
+        return [
+            'results'        => $results,
+            'source'         => $dataSource,
+            'sparql_query'   => $sparql,
+            'spo_triplets'   => [],
+            'clean_query'    => $query,
+            'tokens'         => [$query], // For highlight
+            'highlight_query'=> $query,
+            'sort_label'     => 'Terbaru',
+            'detected_cat'   => $categoryFilter,
+            'detected_year'  => null,
+            'detected_source'=> null,
+            'total'          => count($results),
+            'type'           => 'regular'
+        ];
+    }
+
+    /**
      * Endpoint AJAX untuk autocomplete search bar.
+
      * Mengembalikan JSON array of strings.
      */
     public function autocomplete(Request $request)

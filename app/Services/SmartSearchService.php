@@ -26,7 +26,7 @@ class SmartSearchService
 
     // Daftar stop word konteks berita Indonesia
     protected array $stopWords = [
-        'berita', 'artikel', 'informasi', 'kabar', 'laporan', 'tulisan',
+        'berita', 'artikel', 'informasi', 'kabar', 'laporan', 'tulisan', 'tulis', 'ditulis', 'karya', 'karangan', 'ciptaan', 'liputan', 'dibuat', 'buat',
         'baca', 'membaca', 'mencari', 'cari', 'carikan', 'tampilkan', 'lihat',
         'tentang', 'mengenai', 'seputar', 'terkait', 'mengenai', 'perihal',
         'saya', 'kami', 'kita', 'mau', 'ingin', 'minta', 'tolong', 'dong', 'sih',
@@ -188,12 +188,26 @@ class SmartSearchService
         $cleanQ = trim(preg_replace('/\s+/', ' ', $cleanQ));
 
         // -- 3d. Deteksi Penulis dengan Fuzzy Match (Typo Tolerance) --
-        if (!$detectedSource) {
-            // Ambil data penulis dari cache (disimpan selama 1 jam) untuk optimasi kecepatan
-            $allAuthors = \Illuminate\Support\Facades\Cache::remember('semantic_authors_list', 3600, function () {
-                return \App\Models\News::whereNotNull('source')->where('source', '!=', '')->distinct()->pluck('source')->toArray();
-            });
+        $allAuthors = \Illuminate\Support\Facades\Cache::remember('semantic_authors_list', 3600, function () {
+            return \App\Models\News::whereNotNull('source')->where('source', '!=', '')->distinct()->pluck('source')->toArray();
+        });
 
+        if ($detectedSource) {
+            // Jika penulis didapat dari regex (misal "oleh zainal"), lakukan koreksi typo
+            $sourceWords = array_filter(explode(' ', strtolower($detectedSource)), fn($w) => strlen(trim($w)) > 3);
+            foreach ($sourceWords as $word) {
+                foreach ($allAuthors as $author) {
+                    $authorWords = explode(' ', strtolower($author));
+                    foreach ($authorWords as $aWord) {
+                        if (strlen($aWord) > 3 && (levenshtein($word, $aWord) <= 2)) {
+                            $detectedSource = $author;
+                            break 3;
+                        }
+                    }
+                }
+            }
+        } else {
+            // Jika belum ada penulis yang terdeteksi, cari dari sisa kata di query
             $queryWords = array_filter(
                 explode(' ', strtolower($cleanQ)),
                 fn($w) => strlen(trim($w)) > 3

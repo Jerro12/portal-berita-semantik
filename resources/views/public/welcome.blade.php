@@ -172,26 +172,52 @@
                     </div>
                 </div>
 
-                <!-- Smart Search Bar + Autocomplete -->
-                <form id="search-form" action="/" method="GET" class="relative w-full max-w-sm" autocomplete="off">
-                    <div class="relative">
-                        <input
-                            id="search-input"
-                            type="text"
-                            name="q"
-                            value="{{ $query ?? '' }}"
-                            placeholder="Cari topik, kategori, atau berita..."
-                            class="w-full pl-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-slate-50 focus:bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 text-sm transition-all placeholder:text-slate-400"
-                        >
-                        <button type="submit" class="absolute right-3 top-3 text-slate-400 hover:text-accent transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </button>
+                <!-- Premium Search Bar with Inline Toggle -->
+                <form id="search-form" action="/" method="GET" class="w-full max-w-xl" autocomplete="off">
+                    <div class="relative flex items-center bg-white border-2 border-slate-100 rounded-full p-1.5 focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10 transition-all duration-300 shadow-sm hover:shadow-md">
+                        
+                        <!-- Inline Toggle (Radio) -->
+                        <div class="flex items-center bg-slate-100 p-1 rounded-full shrink-0">
+                            <label class="relative cursor-pointer mb-0">
+                                <input type="radio" name="type" value="smart" class="peer sr-only" {{ request('type', 'smart') == 'smart' ? 'checked' : '' }} onchange="if(this.form.q.value.trim() !== '') this.form.submit()">
+                                <div class="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:bg-white peer-checked:text-accent peer-checked:shadow-sm transition-all flex items-center gap-1.5 select-none">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    <span class="hidden sm:inline">Smart</span>
+                                </div>
+                            </label>
+                            <label class="relative cursor-pointer mb-0">
+                                <input type="radio" name="type" value="regular" class="peer sr-only" {{ request('type') == 'regular' ? 'checked' : '' }} onchange="if(this.form.q.value.trim() !== '') this.form.submit()">
+                                <div class="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all flex items-center gap-1.5 select-none">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                                    <span class="hidden sm:inline">Biasa</span>
+                                </div>
+                            </label>
+                        </div>
 
-                        <!-- Autocomplete Dropdown (diisi via JS) -->
+                        <!-- Divider -->
+                        <div class="h-6 w-[2px] bg-slate-100 mx-2 shrink-0 hidden sm:block"></div>
+
+                        <!-- Search Input -->
+                        <div class="flex-1 flex items-center">
+                            <input
+                                id="search-input"
+                                type="text"
+                                name="q"
+                                value="{{ $query ?? '' }}"
+                                placeholder="Ketik topik pencarian..."
+                                class="w-full bg-transparent pl-2 sm:pl-0 pr-12 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none font-medium border-none focus:ring-0"
+                            >
+                            <button type="submit" class="absolute right-1.5 p-2.5 bg-accent text-white rounded-full hover:bg-slate-900 transition-colors shadow-md group">
+                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Autocomplete Dropdown -->
                         <div id="autocomplete-dropdown" class="hidden"></div>
                     </div>
+                    
                     @if($categoryFilter)
                         <input type="hidden" name="category" value="{{ $categoryFilter }}">
                     @endif
@@ -377,7 +403,13 @@
                                     <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
                                         Hasil Pencarian: <span class="text-accent italic">"{{ $query }}"</span>
                                     </h2>
-                                    <p class="text-xs text-slate-500 font-medium mt-1">Ditemukan melalui Smart Search Engine (SPARQL + Fuzzy Matching)</p>
+                                    <p class="text-xs text-slate-500 font-medium mt-1">
+                                        @if(request('type') == 'regular')
+                                            Ditemukan melalui Pencarian Biasa (Exact/Regex Match)
+                                        @else
+                                            Ditemukan melalui Smart Search Engine (SPARQL + Fuzzy Matching)
+                                        @endif
+                                    </p>
                                 @elseif($categoryFilter)
                                     <h2 class="text-2xl font-serif font-black tracking-tight text-primary">
                                         Kategori: <span class="text-accent italic">{{ $categoryFilter }}</span>
