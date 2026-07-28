@@ -66,11 +66,16 @@ class SmartSearchService
         // Bersihkan tanda baca (kecuali huruf, angka, spasi, strip)
         $cleanQ = preg_replace('/[^\w\s\-]/u', ' ', $cleanQ);
 
-        // Hapus frasa perintah umum konteks berita
+        // Hapus frasa perintah umum konteks berita (Natural Language Queries)
         $commandPhrases = [
             'carikan berita', 'tampilkan berita', 'cari berita',
             'lihat berita', 'berita apa', 'apa berita', 'tunjukkan berita',
             'kasih lihat', 'tolong carikan', 'ingin tahu',
+            'info terbaru seputar', 'info tentang', 'kabar tentang', 'kabar seputar',
+            'tolong cari artikel', 'tolong tampilkan', 'berikan berita',
+            'artikel mengenai', 'artikel tentang', 'berita seputar',
+            'berita terkini seputar', 'artikel terbaru seputar', 'tolong carikan artikel',
+            'minta berita', 'tolong carikan berita', 'cari artikel', 'tampilkan artikel',
         ];
         foreach ($commandPhrases as $phrase) {
             $cleanQ = preg_replace('/\b' . preg_quote($phrase, '/') . '\b/i', '', $cleanQ);
@@ -85,7 +90,7 @@ class SmartSearchService
             $sortOrder = 'DESC';
             $sortLabel = 'Terbaru';
             $cleanQ = preg_replace('/\b(terbaru|baru|terkini|mutakhir|anyar|recent|fresh)\b/i', '', $cleanQ);
-        } elseif (preg_match('/\b(terlama|lama|lawas|jadul|klasik|kuno|lama)\b/i', $cleanQ)) {
+        } elseif (preg_match('/\b(terlama|lama|lawas|jadul|klasik|kuno)\b/i', $cleanQ)) {
             $sortOrder = 'ASC';
             $sortLabel = 'Terlama';
             $cleanQ = preg_replace('/\b(terlama|lama|lawas|jadul|klasik|kuno)\b/i', '', $cleanQ);
@@ -103,6 +108,33 @@ class SmartSearchService
             $cleanQ = str_replace($detectedYear, '', $cleanQ);
             $cleanQ = trim(preg_replace('/\s+/', ' ', $cleanQ));
         }
+
+        // -- 3a2. Deteksi Waktu Relatif (Hari ini, Kemarin, Bulan ini, Minggu ini) --
+        $detectedPeriod = null;
+        $periodLabel = null;
+        $periodFilterDate = null;
+
+        if (preg_match('/\b(hari ini|hariini|today)\b/i', $cleanQ)) {
+            $detectedPeriod = 'today';
+            $periodLabel = 'Hari ini';
+            $periodFilterDate = now()->format('Y-m-d');
+            $cleanQ = preg_replace('/\b(hari ini|hariini|today)\b/i', '', $cleanQ);
+        } elseif (preg_match('/\b(kemarin|yesterday)\b/i', $cleanQ)) {
+            $detectedPeriod = 'yesterday';
+            $periodLabel = 'Kemarin';
+            $periodFilterDate = now()->subDay()->format('Y-m-d');
+            $cleanQ = preg_replace('/\b(kemarin|yesterday)\b/i', '', $cleanQ);
+        } elseif (preg_match('/\b(bulan ini|this month)\b/i', $cleanQ)) {
+            $detectedPeriod = 'month';
+            $periodLabel = 'Bulan ini (' . now()->format('F Y') . ')';
+            $periodFilterDate = now()->format('Y-m');
+            $cleanQ = preg_replace('/\b(bulan ini|this month)\b/i', '', $cleanQ);
+        } elseif (preg_match('/\b(minggu ini|this week)\b/i', $cleanQ)) {
+            $detectedPeriod = 'week';
+            $periodLabel = 'Minggu ini';
+            $cleanQ = preg_replace('/\b(minggu ini|this week)\b/i', '', $cleanQ);
+        }
+        $cleanQ = trim(preg_replace('/\s+/', ' ', $cleanQ));
 
         // -- 3b. Deteksi Kategori dengan Fuzzy Matching (levenshtein ≤ 2) --
         // Gunakan filter manual jika ada, atau deteksi dari query
@@ -253,19 +285,40 @@ class SmartSearchService
         // ====================================================
         // STEP 5: SPARQL QUERY BUILD
         // ====================================================
-        $sparqlQuery = $this->buildSparqlQuery($tokens, $categoryFilter, $detectedYear, $detectedSource, $sortOrder);
+        $sparqlQuery = $this->buildSparqlQuery($tokens, $categoryFilter, $detectedSource, $sortOrder);
 
         $sparqlResults = $this->semantic->query($sparqlQuery);
         $results = $sparqlResults['result']['rows'] ?? [];
+
+        // Post-filter tanggal (tahun & periode) pada hasil SPARQL agar aman dari error binary collation MySQL 8
+        if (!empty($results) && ($detectedYear || $periodFilterDate)) {
+            $results = array_values(array_filter($results, function ($row) use ($detectedYear, $periodFilterDate) {
+                $rowDate = $row['date'] ?? '';
+                if ($detectedYear && strpos($rowDate, $detectedYear) === false) {
+                    return false;
+                }
+                if ($periodFilterDate && strpos($rowDate, $periodFilterDate) === false) {
+                    return false;
+                }
+                return true;
+            }));
+        }
 
         $dataSource = 'sparql';
 
         // ====================================================
         // STEP 6: MYSQL FALLBACK
         // ====================================================
-        if (empty($results) && (!empty($tokens) || $categoryFilter)) {
-            $results       = $this->mysqlFallback($tokens, $categoryFilter, $detectedYear, $detectedSource, $sortOrder);
+        if (empty($results) && (!empty($tokens) || $categoryFilter || $detectedPeriod)) {
+            $results       = $this->mysqlFallback($tokens, $categoryFilter, $detectedYear, $detectedPeriod, $detectedSource, $sortOrder);
             $dataSource    = 'mysql';
+        }
+
+        // ====================================================
+        // STEP 6.5: RELEVANCE RANKING (Perhitungan Bobot Peringkat Relevansi Kata Kunci)
+        // ====================================================
+        if (!empty($tokens) && !empty($results)) {
+            $results = $this->rankByRelevance($results, $tokens);
         }
 
         // ====================================================
@@ -273,7 +326,7 @@ class SmartSearchService
         // ====================================================
         $spoTriplets = $this->buildSpoTriplets(
             $tokens, $categoryFilter, $detectedCat,
-            $detectedYear, $detectedSource, $sortLabel
+            $detectedYear, $periodLabel, $detectedSource, $sortLabel
         );
 
         return [
@@ -287,6 +340,7 @@ class SmartSearchService
             'sort_label'     => $sortLabel,          // label sorting terdeteksi
             'detected_cat'   => $detectedCat,        // kategori terdeteksi
             'detected_year'  => $detectedYear,       // tahun terdeteksi
+            'detected_period'=> $periodLabel,        // periode waktu terdeteksi (misal: Hari ini, Bulan ini)
             'detected_source'=> $detectedSource,     // sumber terdeteksi
             'total'          => count($results),
         ];
@@ -296,9 +350,8 @@ class SmartSearchService
      * STEP 5: Bangun query SPARQL multi-token.
      */
     protected function buildSparqlQuery(
-        array  $tokens,
+        array   $tokens,
         ?string $category,
-        ?string $year,
         ?string $source,
         string  $sortOrder
     ): string {
@@ -320,11 +373,6 @@ class SmartSearchService
         if ($category) {
             $safeCat = addslashes($category);
             $filters[] = "FILTER(REGEX(?category, \"$safeCat\", \"i\"))";
-        }
-
-        // Filter tahun
-        if ($year) {
-            $filters[] = "FILTER(REGEX(?date, \"$year\"))";
         }
 
         // Filter sumber
@@ -364,6 +412,7 @@ class SmartSearchService
         array   $tokens,
         ?string $category,
         ?string $year,
+        ?string $detectedPeriod,
         ?string $source,
         string  $sortOrder
     ): array {
@@ -389,6 +438,16 @@ class SmartSearchService
             $query->whereYear('published_at', $year);
         }
 
+        if ($detectedPeriod === 'today') {
+            $query->whereDate('published_at', now()->today());
+        } elseif ($detectedPeriod === 'yesterday') {
+            $query->whereDate('published_at', now()->yesterday());
+        } elseif ($detectedPeriod === 'month') {
+            $query->whereYear('published_at', now()->year)->whereMonth('published_at', now()->month);
+        } elseif ($detectedPeriod === 'week') {
+            $query->whereBetween('published_at', [now()->startOfWeek(), now()->endOfWeek()]);
+        }
+
         if ($source) {
             $query->where('source', 'LIKE', "%$source%");
         }
@@ -411,6 +470,54 @@ class SmartSearchService
     }
 
     /**
+     * STEP 6.5: Mengurutkan hasil pencarian berdasarkan skor relevansi kata kunci.
+     */
+    protected function rankByRelevance(array $results, array $tokens): array
+    {
+        if (empty($tokens) || empty($results)) {
+            return $results;
+        }
+
+        foreach ($results as &$item) {
+            $score = 0;
+            $headline = strtolower($item['headline'] ?? '');
+            $body = strtolower(strip_tags($item['body'] ?? ''));
+
+            foreach ($tokens as $token) {
+                $tokenLower = strtolower($token);
+                if (strlen($tokenLower) < 2) continue;
+
+                // Judul (headline) memiliki bobot tinggi (+3 poin per kemunculan)
+                $headlineMatches = substr_count($headline, $tokenLower);
+                $score += ($headlineMatches * 3);
+
+                // Isi artikel (body) memiliki bobot normal (+1 poin per kemunculan, maks 10 poin per kata)
+                $bodyMatches = min(substr_count($body, $tokenLower), 10);
+                $score += $bodyMatches;
+            }
+
+            $item['_relevance_score'] = $score;
+        }
+        unset($item);
+
+        // Urutkan berdasar skor tertinggi
+        usort($results, function ($a, $b) {
+            if (($b['_relevance_score'] ?? 0) === ($a['_relevance_score'] ?? 0)) {
+                return 0;
+            }
+            return ($b['_relevance_score'] ?? 0) <=> ($a['_relevance_score'] ?? 0);
+        });
+
+        // Bersihkan atribut internal
+        foreach ($results as &$item) {
+            unset($item['_relevance_score']);
+        }
+        unset($item);
+
+        return $results;
+    }
+
+    /**
      * STEP 7: Bangun array SPO Triplets untuk visualisasi semantik di view.
      */
     protected function buildSpoTriplets(
@@ -418,6 +525,7 @@ class SmartSearchService
         ?string $categoryFilter,
         ?string $detectedCat,
         ?string $detectedYear,
+        ?string $periodLabel,
         ?string $detectedSource,
         ?string $sortLabel
     ): array {
@@ -444,6 +552,14 @@ class SmartSearchService
                 'subject'   => 'Berita',
                 'predicate' => 'diterbitkan_pada_tahun',
                 'object'    => $detectedYear,
+            ];
+        }
+
+        if ($periodLabel) {
+            $spo[] = [
+                'subject'   => 'Berita',
+                'predicate' => 'diterbitkan_pada_periode',
+                'object'    => $periodLabel,
             ];
         }
 

@@ -97,12 +97,20 @@ class NewsController extends Controller
 
     public function destroy(News $news)
     {
+        // 1. Hapus dari triplestore semantik
+        $this->semanticService->deleteNews($news);
+
+        // 2. Hapus dari MySQL (akan mentrigger event deleted juga jika ada)
         $news->delete();
-        return redirect()->route('news.index')->with('success', 'Berita berhasil dihapus.');
+
+        return redirect()->route('news.index')->with('success', 'Berita berhasil dihapus dari database dan triplestore semantik.');
     }
 
     public function reindex()
     {
+        // Reset triplestore terlebih dahulu agar berita yang telah dihapus di MySQL bersih dari triplestore
+        $this->semanticService->resetStore();
+
         $newsItems = News::all();
         $count = 0;
         foreach ($newsItems as $item) {

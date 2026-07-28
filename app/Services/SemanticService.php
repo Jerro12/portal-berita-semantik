@@ -48,7 +48,7 @@ class SemanticService
         $uri = url('/ns/news/' . $news->id);
 
         // 1. Hapus data lama terkait URI ini agar tidak terjadi duplikasi (Cloning)
-        $this->query("DELETE WHERE { <$uri> ?p ?o . }");
+        $this->query("DELETE { <$uri> ?p ?o } WHERE { <$uri> ?p ?o }");
 
         $graph = new Graph();
         $resource = $graph->resource($uri);
@@ -79,6 +79,17 @@ class SemanticService
             $graph->serialise('ntriples'), 
             url('/graph/news')
         );
+    }
+
+    /**
+     * Hapus Berita dari Triplestore berdasarkan News model atau ID
+     */
+    public function deleteNews($news)
+    {
+        $id = $news instanceof News ? $news->id : $news;
+        $uri = url('/ns/news/' . $id);
+
+        return $this->query("DELETE { <$uri> ?p ?o } WHERE { <$uri> ?p ?o }");
     }
 
     /**

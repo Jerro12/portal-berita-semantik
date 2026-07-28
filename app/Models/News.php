@@ -20,4 +20,15 @@ class News extends Model
         'published_at' => 'datetime',
         'metadata' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::saved(function (News $news) {
+            app(\App\Services\SemanticService::class)->indexNews($news);
+        });
+
+        static::deleted(function (News $news) {
+            app(\App\Services\SemanticService::class)->deleteNews($news);
+        });
+    }
 }
